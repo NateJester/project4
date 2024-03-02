@@ -93,7 +93,20 @@ sys_uptime(void)
 int
 sys_wmap(void)
 {
-	return -1;
+	uint addr;
+	int length, flags, fd;
+	
+	if (argint(0, (int*)&addr) < 0) {
+		return -1;
+	}
+	
+	if (argint(1, &length) < 0 || argint(2, &flags) < 0 || argint(3, &fd) < 0) {
+		return -1;
+	}
+
+	cprintf("%d\n", length);
+    
+	return 0;
 }
 
 int 
