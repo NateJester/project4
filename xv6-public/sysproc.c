@@ -89,3 +89,32 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_wmap(void)
+{
+	return -1;
+}
+
+int 
+sys_wunmap(void)
+{
+	return -1;
+}
+
+uint
+sys_wremap(void)
+{
+	return -1;
+}
+
+int 
+sys_getpgdirinfo(void)
+{
+	return -1;
+}
+int 
+sys_getwmapinfo(void)
+{
+	return -1;
+}
