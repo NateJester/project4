@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "wmap.h"
 
 int
 sys_fork(void)
@@ -104,7 +105,7 @@ sys_wmap(void)
 		return -1;
 	}
 
-	cprintf("%d\n", length);
+	cprintf("addr %d, length %d, flags %d, fd %d\n", addr, length, flags, fd);
     
 	return 0;
 }
@@ -126,6 +127,7 @@ sys_getpgdirinfo(void)
 {
 	return -1;
 }
+
 int 
 sys_getwmapinfo(void)
 {
