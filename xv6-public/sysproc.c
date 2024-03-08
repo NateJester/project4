@@ -113,23 +113,47 @@ sys_wmap(void)
 int 
 sys_wunmap(void)
 {
-	return -1;
+	uint addr;
+	if (argint(0, (int*)&addr) < 0) {
+		return -1;
+	}
+	cprintf("addr %d\n", addr);
+	
+	return 0;
 }
 
 uint
 sys_wremap(void)
 {
-	return -1;
+	uint oldaddr;
+	int oldsize, newsize, flags;
+
+	if (argint(0, (int*)&oldaddr) < 0) {
+		return -1;
+	}
+	if (argint(1, &oldsize) < 0 || argint(2, &newsize) < 0 || argint(3, &flags) < 0) {
+		return -1;
+	}
+	cprintf("oldaddr %d, oldsize %d, newsize %d, flags %d\n", oldaddr, oldsize, newsize, flags);
+	return 0;
 }
 
 int 
 sys_getpgdirinfo(void)
 {
-	return -1;
+	struct pgdirinfo *pdinfo;
+	if (argptr(0, (void*)&pdinfo, sizeof(*pdinfo)) < 0) {
+		return -1;
+	}
+	return 0;
 }
 
 int 
 sys_getwmapinfo(void)
 {
-	return -1;
+	struct wmapinfo *wminfo;
+	if (argptr(0, (void*)&wminfo, sizeof(*wminfo)) < 0) {
+		return -1;
+	}
+	return 0;
 }

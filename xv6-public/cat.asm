@@ -5,6 +5,12 @@ _cat:     file format elf32-i386
 Disassembly of section .text:
 
 00000000 <main>:
+  }
+}
+
+int
+main(int argc, char *argv[])
+{
    0:	8d 4c 24 04          	lea    0x4(%esp),%ecx
    4:	83 e4 f0             	and    $0xfffffff0,%esp
    7:	ff 71 fc             	push   -0x4(%ecx)
@@ -20,9 +26,18 @@ Disassembly of section .text:
   1b:	8b 59 04             	mov    0x4(%ecx),%ebx
   1e:	89 45 e4             	mov    %eax,-0x1c(%ebp)
   21:	83 c3 04             	add    $0x4,%ebx
+  int fd, i;
+
+  if(argc <= 1){
   24:	83 f8 01             	cmp    $0x1,%eax
   27:	7e 54                	jle    7d <main+0x7d>
   29:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+    cat(0);
+    exit();
+  }
+
+  for(i = 1; i < argc; i++){
+    if((fd = open(argv[i], 0)) < 0){
   30:	83 ec 08             	sub    $0x8,%esp
   33:	6a 00                	push   $0x0
   35:	ff 33                	push   (%ebx)
@@ -31,38 +46,55 @@ Disassembly of section .text:
   3f:	89 c7                	mov    %eax,%edi
   41:	85 c0                	test   %eax,%eax
   43:	78 24                	js     69 <main+0x69>
+      printf(1, "cat: cannot open %s\n", argv[i]);
+      exit();
+    }
+    cat(fd);
   45:	83 ec 0c             	sub    $0xc,%esp
+  for(i = 1; i < argc; i++){
   48:	83 c6 01             	add    $0x1,%esi
   4b:	83 c3 04             	add    $0x4,%ebx
+    cat(fd);
   4e:	50                   	push   %eax
   4f:	e8 3c 00 00 00       	call   90 <cat>
+    close(fd);
   54:	89 3c 24             	mov    %edi,(%esp)
   57:	e8 2f 03 00 00       	call   38b <close>
+  for(i = 1; i < argc; i++){
   5c:	83 c4 10             	add    $0x10,%esp
   5f:	39 75 e4             	cmp    %esi,-0x1c(%ebp)
   62:	75 cc                	jne    30 <main+0x30>
+  }
+  exit();
   64:	e8 fa 02 00 00       	call   363 <exit>
+      printf(1, "cat: cannot open %s\n", argv[i]);
   69:	50                   	push   %eax
   6a:	ff 33                	push   (%ebx)
   6c:	68 2b 08 00 00       	push   $0x82b
   71:	6a 01                	push   $0x1
   73:	e8 68 04 00 00       	call   4e0 <printf>
+      exit();
   78:	e8 e6 02 00 00       	call   363 <exit>
+    cat(0);
   7d:	83 ec 0c             	sub    $0xc,%esp
   80:	6a 00                	push   $0x0
   82:	e8 09 00 00 00       	call   90 <cat>
+    exit();
   87:	e8 d7 02 00 00       	call   363 <exit>
   8c:	66 90                	xchg   %ax,%ax
   8e:	66 90                	xchg   %ax,%ax
 
 00000090 <cat>:
+{
   90:	55                   	push   %ebp
   91:	89 e5                	mov    %esp,%ebp
   93:	56                   	push   %esi
   94:	8b 75 08             	mov    0x8(%ebp),%esi
   97:	53                   	push   %ebx
+  while((n = read(fd, buf, sizeof(buf))) > 0) {
   98:	eb 1d                	jmp    b7 <cat+0x27>
   9a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+    if (write(1, buf, n) != n) {
   a0:	83 ec 04             	sub    $0x4,%esp
   a3:	53                   	push   %ebx
   a4:	68 a0 0b 00 00       	push   $0xba0
@@ -71,6 +103,7 @@ Disassembly of section .text:
   b0:	83 c4 10             	add    $0x10,%esp
   b3:	39 d8                	cmp    %ebx,%eax
   b5:	75 25                	jne    dc <cat+0x4c>
+  while((n = read(fd, buf, sizeof(buf))) > 0) {
   b7:	83 ec 04             	sub    $0x4,%esp
   ba:	68 00 02 00 00       	push   $0x200
   bf:	68 a0 0b 00 00       	push   $0xba0
@@ -80,22 +113,28 @@ Disassembly of section .text:
   cd:	89 c3                	mov    %eax,%ebx
   cf:	85 c0                	test   %eax,%eax
   d1:	7f cd                	jg     a0 <cat+0x10>
+  if(n < 0){
   d3:	75 1b                	jne    f0 <cat+0x60>
+}
   d5:	8d 65 f8             	lea    -0x8(%ebp),%esp
   d8:	5b                   	pop    %ebx
   d9:	5e                   	pop    %esi
   da:	5d                   	pop    %ebp
   db:	c3                   	ret    
+      printf(1, "cat: write error\n");
   dc:	83 ec 08             	sub    $0x8,%esp
   df:	68 08 08 00 00       	push   $0x808
   e4:	6a 01                	push   $0x1
   e6:	e8 f5 03 00 00       	call   4e0 <printf>
+      exit();
   eb:	e8 73 02 00 00       	call   363 <exit>
+    printf(1, "cat: read error\n");
   f0:	50                   	push   %eax
   f1:	50                   	push   %eax
   f2:	68 1a 08 00 00       	push   $0x81a
   f7:	6a 01                	push   $0x1
   f9:	e8 e2 03 00 00       	call   4e0 <printf>
+    exit();
   fe:	e8 60 02 00 00       	call   363 <exit>
  103:	66 90                	xchg   %ax,%ax
  105:	66 90                	xchg   %ax,%ax

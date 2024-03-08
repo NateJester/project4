@@ -5,18 +5,28 @@ _forktest:     file format elf32-i386
 Disassembly of section .text:
 
 00000000 <main>:
+  printf(1, "fork test OK\n");
+}
+
+int
+main(void)
+{
    0:	55                   	push   %ebp
    1:	89 e5                	mov    %esp,%ebp
    3:	83 e4 f0             	and    $0xfffffff0,%esp
+  forktest();
    6:	e8 35 00 00 00       	call   40 <forktest>
+  exit();
    b:	e8 63 03 00 00       	call   373 <exit>
 
 00000010 <printf>:
+{
   10:	55                   	push   %ebp
   11:	89 e5                	mov    %esp,%ebp
   13:	53                   	push   %ebx
   14:	83 ec 10             	sub    $0x10,%esp
   17:	8b 5d 0c             	mov    0xc(%ebp),%ebx
+  write(fd, s, strlen(s));
   1a:	53                   	push   %ebx
   1b:	e8 90 01 00 00       	call   1b0 <strlen>
   20:	83 c4 0c             	add    $0xc,%esp
@@ -24,6 +34,7 @@ Disassembly of section .text:
   24:	53                   	push   %ebx
   25:	ff 75 08             	push   0x8(%ebp)
   28:	e8 66 03 00 00       	call   393 <write>
+}
   2d:	8b 5d fc             	mov    -0x4(%ebp),%ebx
   30:	83 c4 10             	add    $0x10,%esp
   33:	c9                   	leave  
@@ -32,11 +43,15 @@ Disassembly of section .text:
   3c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
 
 00000040 <forktest>:
+{
   40:	55                   	push   %ebp
   41:	89 e5                	mov    %esp,%ebp
   43:	53                   	push   %ebx
+  for(n=0; n<N; n++){
   44:	31 db                	xor    %ebx,%ebx
+{
   46:	83 ec 10             	sub    $0x10,%esp
+  write(fd, s, strlen(s));
   49:	68 3c 04 00 00       	push   $0x43c
   4e:	e8 5d 01 00 00       	call   1b0 <strlen>
   53:	83 c4 0c             	add    $0xc,%esp
@@ -48,24 +63,33 @@ Disassembly of section .text:
   66:	eb 19                	jmp    81 <forktest+0x41>
   68:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
   6f:	90                   	nop
+    if(pid == 0)
   70:	74 58                	je     ca <forktest+0x8a>
+  for(n=0; n<N; n++){
   72:	83 c3 01             	add    $0x1,%ebx
   75:	81 fb e8 03 00 00    	cmp    $0x3e8,%ebx
   7b:	0f 84 83 00 00 00    	je     104 <forktest+0xc4>
+    pid = fork();
   81:	e8 e5 02 00 00       	call   36b <fork>
+    if(pid < 0)
   86:	85 c0                	test   %eax,%eax
   88:	79 e6                	jns    70 <forktest+0x30>
+  for(; n > 0; n--){
   8a:	85 db                	test   %ebx,%ebx
   8c:	74 10                	je     9e <forktest+0x5e>
   8e:	66 90                	xchg   %ax,%ax
+    if(wait() < 0){
   90:	e8 e6 02 00 00       	call   37b <wait>
   95:	85 c0                	test   %eax,%eax
   97:	78 36                	js     cf <forktest+0x8f>
+  for(; n > 0; n--){
   99:	83 eb 01             	sub    $0x1,%ebx
   9c:	75 f2                	jne    90 <forktest+0x50>
+  if(wait() != -1){
   9e:	e8 d8 02 00 00       	call   37b <wait>
   a3:	83 f8 ff             	cmp    $0xffffffff,%eax
   a6:	75 49                	jne    f1 <forktest+0xb1>
+  write(fd, s, strlen(s));
   a8:	83 ec 0c             	sub    $0xc,%esp
   ab:	68 6e 04 00 00       	push   $0x46e
   b0:	e8 fb 00 00 00       	call   1b0 <strlen>
@@ -74,10 +98,13 @@ Disassembly of section .text:
   b9:	68 6e 04 00 00       	push   $0x46e
   be:	6a 01                	push   $0x1
   c0:	e8 ce 02 00 00       	call   393 <write>
+}
   c5:	8b 5d fc             	mov    -0x4(%ebp),%ebx
   c8:	c9                   	leave  
   c9:	c3                   	ret    
+      exit();
   ca:	e8 a4 02 00 00       	call   373 <exit>
+  write(fd, s, strlen(s));
   cf:	83 ec 0c             	sub    $0xc,%esp
   d2:	68 47 04 00 00       	push   $0x447
   d7:	e8 d4 00 00 00       	call   1b0 <strlen>
@@ -86,18 +113,23 @@ Disassembly of section .text:
   e0:	68 47 04 00 00       	push   $0x447
   e5:	6a 01                	push   $0x1
   e7:	e8 a7 02 00 00       	call   393 <write>
+      exit();
   ec:	e8 82 02 00 00       	call   373 <exit>
+    printf(1, "wait got too many\n");
   f1:	52                   	push   %edx
   f2:	52                   	push   %edx
   f3:	68 5b 04 00 00       	push   $0x45b
   f8:	6a 01                	push   $0x1
   fa:	e8 11 ff ff ff       	call   10 <printf>
+    exit();
   ff:	e8 6f 02 00 00       	call   373 <exit>
+    printf(1, "fork claimed to work N times!\n", N);
  104:	50                   	push   %eax
  105:	68 e8 03 00 00       	push   $0x3e8
  10a:	68 7c 04 00 00       	push   $0x47c
  10f:	6a 01                	push   $0x1
  111:	e8 fa fe ff ff       	call   10 <printf>
+    exit();
  116:	e8 58 02 00 00       	call   373 <exit>
  11b:	66 90                	xchg   %ax,%ax
  11d:	66 90                	xchg   %ax,%ax

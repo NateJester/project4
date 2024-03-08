@@ -5,6 +5,12 @@ _echo:     file format elf32-i386
 Disassembly of section .text:
 
 00000000 <main>:
+#include "stat.h"
+#include "user.h"
+
+int
+main(int argc, char *argv[])
+{
    0:	8d 4c 24 04          	lea    0x4(%esp),%ecx
    4:	83 e4 f0             	and    $0xfffffff0,%esp
    7:	ff 71 fc             	push   -0x4(%ecx)
@@ -17,9 +23,13 @@ Disassembly of section .text:
   11:	83 ec 08             	sub    $0x8,%esp
   14:	8b 31                	mov    (%ecx),%esi
   16:	8b 79 04             	mov    0x4(%ecx),%edi
+  int i;
+
+  for(i = 1; i < argc; i++)
   19:	83 fe 01             	cmp    $0x1,%esi
   1c:	7e 47                	jle    65 <main+0x65>
   1e:	bb 01 00 00 00       	mov    $0x1,%ebx
+    printf(1, "%s%s", argv[i], i+1 < argc ? " " : "\n");
   23:	83 c3 01             	add    $0x1,%ebx
   26:	8b 44 9f fc          	mov    -0x4(%edi,%ebx,4),%eax
   2a:	39 f3                	cmp    %esi,%ebx
@@ -41,6 +51,7 @@ Disassembly of section .text:
   5b:	6a 01                	push   $0x1
   5d:	e8 de 03 00 00       	call   440 <printf>
   62:	83 c4 10             	add    $0x10,%esp
+  exit();
   65:	e8 59 02 00 00       	call   2c3 <exit>
   6a:	66 90                	xchg   %ax,%ax
   6c:	66 90                	xchg   %ax,%ax
