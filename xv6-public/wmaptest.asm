@@ -18,17 +18,15 @@ int main(void) {
    b:	89 e5                	mov    %esp,%ebp
    d:	51                   	push   %ecx
    e:	83 ec 04             	sub    $0x4,%esp
-	wmap(1, 1, 1, 1);
-  11:	6a 01                	push   $0x1
-  13:	6a 01                	push   $0x1
-  15:	6a 01                	push   $0x1
-  17:	6a 01                	push   $0x1
-  19:	e8 05 03 00 00       	call   323 <wmap>
+	wmap(0x60000000, 8192, MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, -1);
+  11:	6a ff                	push   $0xffffffff
+  13:	6a 0e                	push   $0xe
+  15:	68 00 20 00 00       	push   $0x2000
+  1a:	68 00 00 00 60       	push   $0x60000000
+  1f:	e8 ff 02 00 00       	call   323 <wmap>
+
 	exit();
-  1e:	e8 60 02 00 00       	call   283 <exit>
-  23:	66 90                	xchg   %ax,%ax
-  25:	66 90                	xchg   %ax,%ax
-  27:	66 90                	xchg   %ax,%ax
+  24:	e8 5a 02 00 00       	call   283 <exit>
   29:	66 90                	xchg   %ax,%ax
   2b:	66 90                	xchg   %ax,%ax
   2d:	66 90                	xchg   %ax,%ax

@@ -4,6 +4,7 @@
 #include "wmap.h"
 
 int main(void) {
-	wmap(1, 1, 1, 1);
+	wmap(0x60000000, 8192, MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, -1);
+
 	exit();
 }

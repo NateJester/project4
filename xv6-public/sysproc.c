@@ -94,8 +94,10 @@ sys_uptime(void)
 int
 sys_wmap(void)
 {
+	// parse arguments
 	uint addr;
 	int length, flags, fd;
+	struct proc *currProc = myproc();
 	
 	if (argint(0, (int*)&addr) < 0) {
 		return -1;
@@ -105,7 +107,33 @@ sys_wmap(void)
 		return -1;
 	}
 
+	// check flags using bits, set to 1 if flag is set
+	int priv = 0, shared = 0, anon = 0, fixed = 0;
+	if ((flags & (1 << 0)) != 0) {
+		priv = 1;
+	}
+	if ((flags & (1 << 1)) != 0) {
+		shared = 1;
+	}
+	if ((flags & (1 << 2)) != 0) {
+		anon = 1;
+	}
+	if ((flags & (1 << 3)) != 0) {
+		fixed = 1;
+	}
+
 	cprintf("addr %d, length %d, flags %d, fd %d\n", addr, length, flags, fd);
+    cprintf("priv %d, shared %d, anon %d, fixed %d\n", priv, shared, anon, fixed);
+
+    // map the pages of memory
+	int numPages = (length + 4095) / 4096;
+	char *mem;
+	
+	for (int i = 0; i < numPages; i++) {
+		mem = kalloc();
+		mappages(currProc->pgdir, (void*)addr, 4096, V2P(mem), PTE_W | PTE_U);
+		addr += 4096;
+	}
     
 	return 0;
 }
