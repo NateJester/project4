@@ -5,6 +5,12 @@ _cat:     file format elf32-i386
 Disassembly of section .text:
 
 00000000 <main>:
+  }
+}
+
+int
+main(int argc, char *argv[])
+{
    0:	8d 4c 24 04          	lea    0x4(%esp),%ecx
    4:	83 e4 f0             	and    $0xfffffff0,%esp
    7:	ff 71 fc             	push   -0x4(%ecx)
@@ -20,9 +26,18 @@ Disassembly of section .text:
   1b:	8b 59 04             	mov    0x4(%ecx),%ebx
   1e:	89 45 e4             	mov    %eax,-0x1c(%ebp)
   21:	83 c3 04             	add    $0x4,%ebx
+  int fd, i;
+
+  if(argc <= 1){
   24:	83 f8 01             	cmp    $0x1,%eax
   27:	7e 54                	jle    7d <main+0x7d>
   29:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+    cat(0);
+    exit();
+  }
+
+  for(i = 1; i < argc; i++){
+    if((fd = open(argv[i], 0)) < 0){
   30:	83 ec 08             	sub    $0x8,%esp
   33:	6a 00                	push   $0x0
   35:	ff 33                	push   (%ebx)
@@ -31,38 +46,55 @@ Disassembly of section .text:
   3f:	89 c7                	mov    %eax,%edi
   41:	85 c0                	test   %eax,%eax
   43:	78 24                	js     69 <main+0x69>
+      printf(1, "cat: cannot open %s\n", argv[i]);
+      exit();
+    }
+    cat(fd);
   45:	83 ec 0c             	sub    $0xc,%esp
+  for(i = 1; i < argc; i++){
   48:	83 c6 01             	add    $0x1,%esi
   4b:	83 c3 04             	add    $0x4,%ebx
+    cat(fd);
   4e:	50                   	push   %eax
   4f:	e8 3c 00 00 00       	call   90 <cat>
+    close(fd);
   54:	89 3c 24             	mov    %edi,(%esp)
   57:	e8 2f 03 00 00       	call   38b <close>
+  for(i = 1; i < argc; i++){
   5c:	83 c4 10             	add    $0x10,%esp
   5f:	39 75 e4             	cmp    %esi,-0x1c(%ebp)
   62:	75 cc                	jne    30 <main+0x30>
+  }
+  exit();
   64:	e8 fa 02 00 00       	call   363 <exit>
+      printf(1, "cat: cannot open %s\n", argv[i]);
   69:	50                   	push   %eax
   6a:	ff 33                	push   (%ebx)
   6c:	68 2b 08 00 00       	push   $0x82b
   71:	6a 01                	push   $0x1
   73:	e8 68 04 00 00       	call   4e0 <printf>
+      exit();
   78:	e8 e6 02 00 00       	call   363 <exit>
+    cat(0);
   7d:	83 ec 0c             	sub    $0xc,%esp
   80:	6a 00                	push   $0x0
   82:	e8 09 00 00 00       	call   90 <cat>
+    exit();
   87:	e8 d7 02 00 00       	call   363 <exit>
   8c:	66 90                	xchg   %ax,%ax
   8e:	66 90                	xchg   %ax,%ax
 
 00000090 <cat>:
+{
   90:	55                   	push   %ebp
   91:	89 e5                	mov    %esp,%ebp
   93:	56                   	push   %esi
   94:	8b 75 08             	mov    0x8(%ebp),%esi
   97:	53                   	push   %ebx
+  while((n = read(fd, buf, sizeof(buf))) > 0) {
   98:	eb 1d                	jmp    b7 <cat+0x27>
   9a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+    if (write(1, buf, n) != n) {
   a0:	83 ec 04             	sub    $0x4,%esp
   a3:	53                   	push   %ebx
   a4:	68 a0 0b 00 00       	push   $0xba0
@@ -71,6 +103,7 @@ Disassembly of section .text:
   b0:	83 c4 10             	add    $0x10,%esp
   b3:	39 d8                	cmp    %ebx,%eax
   b5:	75 25                	jne    dc <cat+0x4c>
+  while((n = read(fd, buf, sizeof(buf))) > 0) {
   b7:	83 ec 04             	sub    $0x4,%esp
   ba:	68 00 02 00 00       	push   $0x200
   bf:	68 a0 0b 00 00       	push   $0xba0
@@ -80,22 +113,28 @@ Disassembly of section .text:
   cd:	89 c3                	mov    %eax,%ebx
   cf:	85 c0                	test   %eax,%eax
   d1:	7f cd                	jg     a0 <cat+0x10>
+  if(n < 0){
   d3:	75 1b                	jne    f0 <cat+0x60>
+}
   d5:	8d 65 f8             	lea    -0x8(%ebp),%esp
   d8:	5b                   	pop    %ebx
   d9:	5e                   	pop    %esi
   da:	5d                   	pop    %ebp
   db:	c3                   	ret    
+      printf(1, "cat: write error\n");
   dc:	83 ec 08             	sub    $0x8,%esp
   df:	68 08 08 00 00       	push   $0x808
   e4:	6a 01                	push   $0x1
   e6:	e8 f5 03 00 00       	call   4e0 <printf>
+      exit();
   eb:	e8 73 02 00 00       	call   363 <exit>
+    printf(1, "cat: read error\n");
   f0:	50                   	push   %eax
   f1:	50                   	push   %eax
   f2:	68 1a 08 00 00       	push   $0x81a
   f7:	6a 01                	push   $0x1
   f9:	e8 e2 03 00 00       	call   4e0 <printf>
+    exit();
   fe:	e8 60 02 00 00       	call   363 <exit>
  103:	66 90                	xchg   %ax,%ax
  105:	66 90                	xchg   %ax,%ax
@@ -500,131 +539,162 @@ memmove(void *vdst, const void *vsrc, int n)
  35a:	c3                   	ret    
 
 0000035b <fork>:
+  name: \
+    movl $SYS_ ## name, %eax; \
+    int $T_SYSCALL; \
+    ret
+
+SYSCALL(fork)
  35b:	b8 01 00 00 00       	mov    $0x1,%eax
  360:	cd 40                	int    $0x40
  362:	c3                   	ret    
 
 00000363 <exit>:
+SYSCALL(exit)
  363:	b8 02 00 00 00       	mov    $0x2,%eax
  368:	cd 40                	int    $0x40
  36a:	c3                   	ret    
 
 0000036b <wait>:
+SYSCALL(wait)
  36b:	b8 03 00 00 00       	mov    $0x3,%eax
  370:	cd 40                	int    $0x40
  372:	c3                   	ret    
 
 00000373 <pipe>:
+SYSCALL(pipe)
  373:	b8 04 00 00 00       	mov    $0x4,%eax
  378:	cd 40                	int    $0x40
  37a:	c3                   	ret    
 
 0000037b <read>:
+SYSCALL(read)
  37b:	b8 05 00 00 00       	mov    $0x5,%eax
  380:	cd 40                	int    $0x40
  382:	c3                   	ret    
 
 00000383 <write>:
+SYSCALL(write)
  383:	b8 10 00 00 00       	mov    $0x10,%eax
  388:	cd 40                	int    $0x40
  38a:	c3                   	ret    
 
 0000038b <close>:
+SYSCALL(close)
  38b:	b8 15 00 00 00       	mov    $0x15,%eax
  390:	cd 40                	int    $0x40
  392:	c3                   	ret    
 
 00000393 <kill>:
+SYSCALL(kill)
  393:	b8 06 00 00 00       	mov    $0x6,%eax
  398:	cd 40                	int    $0x40
  39a:	c3                   	ret    
 
 0000039b <exec>:
+SYSCALL(exec)
  39b:	b8 07 00 00 00       	mov    $0x7,%eax
  3a0:	cd 40                	int    $0x40
  3a2:	c3                   	ret    
 
 000003a3 <open>:
+SYSCALL(open)
  3a3:	b8 0f 00 00 00       	mov    $0xf,%eax
  3a8:	cd 40                	int    $0x40
  3aa:	c3                   	ret    
 
 000003ab <mknod>:
+SYSCALL(mknod)
  3ab:	b8 11 00 00 00       	mov    $0x11,%eax
  3b0:	cd 40                	int    $0x40
  3b2:	c3                   	ret    
 
 000003b3 <unlink>:
+SYSCALL(unlink)
  3b3:	b8 12 00 00 00       	mov    $0x12,%eax
  3b8:	cd 40                	int    $0x40
  3ba:	c3                   	ret    
 
 000003bb <fstat>:
+SYSCALL(fstat)
  3bb:	b8 08 00 00 00       	mov    $0x8,%eax
  3c0:	cd 40                	int    $0x40
  3c2:	c3                   	ret    
 
 000003c3 <link>:
+SYSCALL(link)
  3c3:	b8 13 00 00 00       	mov    $0x13,%eax
  3c8:	cd 40                	int    $0x40
  3ca:	c3                   	ret    
 
 000003cb <mkdir>:
+SYSCALL(mkdir)
  3cb:	b8 14 00 00 00       	mov    $0x14,%eax
  3d0:	cd 40                	int    $0x40
  3d2:	c3                   	ret    
 
 000003d3 <chdir>:
+SYSCALL(chdir)
  3d3:	b8 09 00 00 00       	mov    $0x9,%eax
  3d8:	cd 40                	int    $0x40
  3da:	c3                   	ret    
 
 000003db <dup>:
+SYSCALL(dup)
  3db:	b8 0a 00 00 00       	mov    $0xa,%eax
  3e0:	cd 40                	int    $0x40
  3e2:	c3                   	ret    
 
 000003e3 <getpid>:
+SYSCALL(getpid)
  3e3:	b8 0b 00 00 00       	mov    $0xb,%eax
  3e8:	cd 40                	int    $0x40
  3ea:	c3                   	ret    
 
 000003eb <sbrk>:
+SYSCALL(sbrk)
  3eb:	b8 0c 00 00 00       	mov    $0xc,%eax
  3f0:	cd 40                	int    $0x40
  3f2:	c3                   	ret    
 
 000003f3 <sleep>:
+SYSCALL(sleep)
  3f3:	b8 0d 00 00 00       	mov    $0xd,%eax
  3f8:	cd 40                	int    $0x40
  3fa:	c3                   	ret    
 
 000003fb <uptime>:
+SYSCALL(uptime)
  3fb:	b8 0e 00 00 00       	mov    $0xe,%eax
  400:	cd 40                	int    $0x40
  402:	c3                   	ret    
 
 00000403 <wmap>:
+SYSCALL(wmap)
  403:	b8 16 00 00 00       	mov    $0x16,%eax
  408:	cd 40                	int    $0x40
  40a:	c3                   	ret    
 
 0000040b <wunmap>:
+SYSCALL(wunmap)
  40b:	b8 17 00 00 00       	mov    $0x17,%eax
  410:	cd 40                	int    $0x40
  412:	c3                   	ret    
 
 00000413 <wremap>:
+SYSCALL(wremap)
  413:	b8 18 00 00 00       	mov    $0x18,%eax
  418:	cd 40                	int    $0x40
  41a:	c3                   	ret    
 
 0000041b <getpgdirinfo>:
+SYSCALL(getpgdirinfo)
  41b:	b8 19 00 00 00       	mov    $0x19,%eax
  420:	cd 40                	int    $0x40
  422:	c3                   	ret    
 
 00000423 <getwmapinfo>:
+SYSCALL(getwmapinfo)
  423:	b8 1a 00 00 00       	mov    $0x1a,%eax
  428:	cd 40                	int    $0x40
  42a:	c3                   	ret    

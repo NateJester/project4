@@ -8,22 +8,7 @@ build xv6 using make
 **********************************************************************
 Trying to build project using make
 make xv6.img fs.img
-gcc -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -fno-stack-protector -fno-pie -no-pie   -c -o sysproc.o sysproc.c
-ld -m    elf_i386 -T kernel.ld -o kernel entry.o bio.o console.o exec.o file.o fs.o ide.o ioapic.o kalloc.o kbd.o lapic.o log.o main.o mp.o picirq.o pipe.o proc.o sleeplock.o spinlock.o string.o swtch.o syscall.o sysfile.o sysproc.o trapasm.o trap.o uart.o vectors.o vm.o  -b binary initcode entryother
-objdump -S kernel > kernel.asm
-objdump -t kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$/d' > kernel.sym
-dd if=/dev/zero of=xv6.img count=10000
-10000+0 records in
-10000+0 records out
-5120000 bytes (5.1 MB, 4.9 MiB) copied, 0.0101934 s, 502 MB/s
-dd if=bootblock of=xv6.img conv=notrunc
-1+0 records in
-1+0 records out
-512 bytes copied, 4.0366e-05 s, 12.7 MB/s
-dd if=kernel of=xv6.img seek=1 conv=notrunc
-397+1 records in
-397+1 records out
-203408 bytes (203 kB, 199 KiB) copied, 0.000413238 s, 492 MB/s
+make: 'xv6.img' is up to date.
 make: 'fs.img' is up to date.
 
 
@@ -39,11 +24,11 @@ Checks the presence of all system calls
 
 **********************************************************************
 Running xv6 user progam /home/cs537-1/tests/P4/1_starter_tests/test_1.c
-DEBUG: cmd = ['/home/cs537-1/tests/P4/edit-makefile.sh', '/tmp/tmpq9hj2wik/p/Makefile', '/tmp/tmpq9hj2wik/p/Makefile.test']
+DEBUG: cmd = ['/home/cs537-1/tests/P4/edit-makefile.sh', '/tmp/tmp22i5zfzp/p/Makefile', '/tmp/tmp22i5zfzp/p/Makefile.test']
 Trying to build project using make
 make xv6.img fs.img
-/tmp/tmpq9hj2wik/p/Makefile
-/tmp/tmpq9hj2wik/p/Makefile.test
+/tmp/tmp22i5zfzp/p/Makefile
+/tmp/tmp22i5zfzp/p/Makefile.test
 make: 'xv6.img' is up to date.
 make: 'fs.img' is up to date.
 make qemu-nox CPUS=1
@@ -53,7 +38,7 @@ objdump -S _tester > tester.asm
 objdump -t _tester | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$/d' > tester.sym
 ./mkfs fs.img README _cat _echo _forktest _grep _init _kill _ln _ls _tester _mkdir _rm _sh _stressfs _usertests _wc _zombie _wmaptest 
 nmeta 59 (boot, super, log blocks 30 inode blocks 26, bitmap blocks 1) blocks 941 total 1000
-balloc: first 710 blocks have been allocated
+balloc: first 711 blocks have been allocated
 balloc: write bitmap block at sector 58
 qemu-system-i386 -nographic -drive file=fs.img,index=1,media=disk,format=raw -drive file=xv6.img,index=0,media=disk,format=raw -smp 1 -m 512 
 c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
@@ -73,7 +58,7 @@ tester
 
 TEST_1
 `getpgdirinfo()` returned 0
-addr 0, length 100, flags 5, fd 0
+addr 0x0, length 100, flags 5, fd 0
 priv 1, shared 0, anon 1, fixed 0
 lapicid 0: panic: remap
- 80106c07 80105943 80104a89 80105ced 80105a90 0 0 0 0 0
+ 80106ec7 801059a3 80104a99 80105f1d 80105cc0 0 0 0 0 0
