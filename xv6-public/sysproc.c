@@ -131,14 +131,14 @@ sys_wmap(void)
 
 	if(currProc->total_wmaps >= 16) {
 		cprintf("already 16 wmaps\n");
-		return -1;
+		return FAILED;
 	}
 
-	int startAddr = addr;
+	uint startAddr = addr;
 	for (int i = 0; i < currProc->total_wmaps; i++) {
-		if (startAddr >= currProc->wmaps[i].addr && startAddr <= currProc->wmaps[i].addr + currProc->wmaps[i].size) {
+		if (startAddr >= currProc->wmaps[i].addr && startAddr < currProc->wmaps[i].addr + currProc->wmaps[i].size) {
 			cprintf("Invalid wmap\n");
-			return -1;
+			return FAILED;
 		}
 	}
 
@@ -196,9 +196,9 @@ sys_wunmap(void)
 		addr += 4096;
 		*pte = 0;
 	}
-	
+
 	cprintf("unmap success\n");
-	return addr;
+	return SUCCESS;
 }
 
 uint
@@ -208,10 +208,10 @@ sys_wremap(void)
 	int oldsize, newsize, flags;
 
 	if (argint(0, (int*)&oldaddr) < 0) {
-		return -1;
+		return FAILED;
 	}
 	if (argint(1, &oldsize) < 0 || argint(2, &newsize) < 0 || argint(3, &flags) < 0) {
-		return -1;
+		return FAILED;
 	}
 	cprintf("oldaddr %d, oldsize %d, newsize %d, flags %d\n", oldaddr, oldsize, newsize, flags);
 	return 0;
@@ -222,7 +222,7 @@ sys_getpgdirinfo(void)
 {
 	struct pgdirinfo *pdinfo;
 	if (argptr(0, (void*)&pdinfo, sizeof(*pdinfo)) < 0) {
-		return -1;
+		return FAILED;
 	}
 	return 0;
 }
@@ -232,7 +232,16 @@ sys_getwmapinfo(void)
 {
 	struct wmapinfo *wminfo;
 	if (argptr(0, (void*)&wminfo, sizeof(*wminfo)) < 0) {
-		return -1;
+		return FAILED;
 	}
-	return 0;
+	
+	struct proc *currProc = myproc();
+	wminfo->total_mmaps = currProc->total_wmaps;
+	for (int i = 0; i < currProc->total_wmaps; i++) {
+		wminfo->addr[i] = currProc->wmaps[i].addr;
+		wminfo->length[i] = currProc->wmaps[i].size;
+		wminfo->n_loaded_pages[i] = (currProc->wmaps[i].size / 4096);
+	}
+	
+	return SUCCESS;
 }
