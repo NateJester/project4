@@ -590,162 +590,131 @@ memmove(void *vdst, const void *vsrc, int n)
  3ca:	c3                   	ret    
 
 000003cb <fork>:
-  name: \
-    movl $SYS_ ## name, %eax; \
-    int $T_SYSCALL; \
-    ret
-
-SYSCALL(fork)
  3cb:	b8 01 00 00 00       	mov    $0x1,%eax
  3d0:	cd 40                	int    $0x40
  3d2:	c3                   	ret    
 
 000003d3 <exit>:
-SYSCALL(exit)
  3d3:	b8 02 00 00 00       	mov    $0x2,%eax
  3d8:	cd 40                	int    $0x40
  3da:	c3                   	ret    
 
 000003db <wait>:
-SYSCALL(wait)
  3db:	b8 03 00 00 00       	mov    $0x3,%eax
  3e0:	cd 40                	int    $0x40
  3e2:	c3                   	ret    
 
 000003e3 <pipe>:
-SYSCALL(pipe)
  3e3:	b8 04 00 00 00       	mov    $0x4,%eax
  3e8:	cd 40                	int    $0x40
  3ea:	c3                   	ret    
 
 000003eb <read>:
-SYSCALL(read)
  3eb:	b8 05 00 00 00       	mov    $0x5,%eax
  3f0:	cd 40                	int    $0x40
  3f2:	c3                   	ret    
 
 000003f3 <write>:
-SYSCALL(write)
  3f3:	b8 10 00 00 00       	mov    $0x10,%eax
  3f8:	cd 40                	int    $0x40
  3fa:	c3                   	ret    
 
 000003fb <close>:
-SYSCALL(close)
  3fb:	b8 15 00 00 00       	mov    $0x15,%eax
  400:	cd 40                	int    $0x40
  402:	c3                   	ret    
 
 00000403 <kill>:
-SYSCALL(kill)
  403:	b8 06 00 00 00       	mov    $0x6,%eax
  408:	cd 40                	int    $0x40
  40a:	c3                   	ret    
 
 0000040b <exec>:
-SYSCALL(exec)
  40b:	b8 07 00 00 00       	mov    $0x7,%eax
  410:	cd 40                	int    $0x40
  412:	c3                   	ret    
 
 00000413 <open>:
-SYSCALL(open)
  413:	b8 0f 00 00 00       	mov    $0xf,%eax
  418:	cd 40                	int    $0x40
  41a:	c3                   	ret    
 
 0000041b <mknod>:
-SYSCALL(mknod)
  41b:	b8 11 00 00 00       	mov    $0x11,%eax
  420:	cd 40                	int    $0x40
  422:	c3                   	ret    
 
 00000423 <unlink>:
-SYSCALL(unlink)
  423:	b8 12 00 00 00       	mov    $0x12,%eax
  428:	cd 40                	int    $0x40
  42a:	c3                   	ret    
 
 0000042b <fstat>:
-SYSCALL(fstat)
  42b:	b8 08 00 00 00       	mov    $0x8,%eax
  430:	cd 40                	int    $0x40
  432:	c3                   	ret    
 
 00000433 <link>:
-SYSCALL(link)
  433:	b8 13 00 00 00       	mov    $0x13,%eax
  438:	cd 40                	int    $0x40
  43a:	c3                   	ret    
 
 0000043b <mkdir>:
-SYSCALL(mkdir)
  43b:	b8 14 00 00 00       	mov    $0x14,%eax
  440:	cd 40                	int    $0x40
  442:	c3                   	ret    
 
 00000443 <chdir>:
-SYSCALL(chdir)
  443:	b8 09 00 00 00       	mov    $0x9,%eax
  448:	cd 40                	int    $0x40
  44a:	c3                   	ret    
 
 0000044b <dup>:
-SYSCALL(dup)
  44b:	b8 0a 00 00 00       	mov    $0xa,%eax
  450:	cd 40                	int    $0x40
  452:	c3                   	ret    
 
 00000453 <getpid>:
-SYSCALL(getpid)
  453:	b8 0b 00 00 00       	mov    $0xb,%eax
  458:	cd 40                	int    $0x40
  45a:	c3                   	ret    
 
 0000045b <sbrk>:
-SYSCALL(sbrk)
  45b:	b8 0c 00 00 00       	mov    $0xc,%eax
  460:	cd 40                	int    $0x40
  462:	c3                   	ret    
 
 00000463 <sleep>:
-SYSCALL(sleep)
  463:	b8 0d 00 00 00       	mov    $0xd,%eax
  468:	cd 40                	int    $0x40
  46a:	c3                   	ret    
 
 0000046b <uptime>:
-SYSCALL(uptime)
  46b:	b8 0e 00 00 00       	mov    $0xe,%eax
  470:	cd 40                	int    $0x40
  472:	c3                   	ret    
 
 00000473 <wmap>:
-SYSCALL(wmap)
  473:	b8 16 00 00 00       	mov    $0x16,%eax
  478:	cd 40                	int    $0x40
  47a:	c3                   	ret    
 
 0000047b <wunmap>:
-SYSCALL(wunmap)
  47b:	b8 17 00 00 00       	mov    $0x17,%eax
  480:	cd 40                	int    $0x40
  482:	c3                   	ret    
 
 00000483 <wremap>:
-SYSCALL(wremap)
  483:	b8 18 00 00 00       	mov    $0x18,%eax
  488:	cd 40                	int    $0x40
  48a:	c3                   	ret    
 
 0000048b <getpgdirinfo>:
-SYSCALL(getpgdirinfo)
  48b:	b8 19 00 00 00       	mov    $0x19,%eax
  490:	cd 40                	int    $0x40
  492:	c3                   	ret    
 
 00000493 <getwmapinfo>:
-SYSCALL(getwmapinfo)
  493:	b8 1a 00 00 00       	mov    $0x1a,%eax
  498:	cd 40                	int    $0x40
  49a:	c3                   	ret    

@@ -134,7 +134,25 @@ sys_wmap(void)
 		mappages(currProc->pgdir, (void*)addr, 4096, V2P(mem), PTE_W | PTE_U);
 		addr += 4096;
 	}
-    
+
+	if(currProc->total_wmaps >= 16) {
+		cprintf("already 16 wmaps\n");
+		return -1;
+	}
+
+	int startAddr = addr - numPages * 4096;
+	for (int i = 0; i < currProc->total_wmaps; i++) {
+		if (startAddr >= currProc->wmaps[i].addr && startAddr <= currProc->wmaps[i].addr + currProc->wmaps[i].size) {
+			cprintf("Invalid wmap\n");
+			return -1;
+		}
+	} 
+    currProc->wmaps[currProc->total_wmaps].addr = startAddr;
+   	currProc->wmaps[currProc->total_wmaps].size = numPages * 4096;
+    cprintf("%d\n", currProc->wmaps[currProc->total_wmaps].addr);
+   	cprintf("%d\n", currProc->wmaps[currProc->total_wmaps].size);
+   	currProc->total_wmaps += 1;
+   	cprintf("%d\n", currProc->total_wmaps);
 	return 0;
 }
 

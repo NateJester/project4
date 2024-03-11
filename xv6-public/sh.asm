@@ -1991,162 +1991,131 @@ memmove(void *vdst, const void *vsrc, int n)
      e1a:	c3                   	ret    
 
 00000e1b <fork>:
-  name: \
-    movl $SYS_ ## name, %eax; \
-    int $T_SYSCALL; \
-    ret
-
-SYSCALL(fork)
      e1b:	b8 01 00 00 00       	mov    $0x1,%eax
      e20:	cd 40                	int    $0x40
      e22:	c3                   	ret    
 
 00000e23 <exit>:
-SYSCALL(exit)
      e23:	b8 02 00 00 00       	mov    $0x2,%eax
      e28:	cd 40                	int    $0x40
      e2a:	c3                   	ret    
 
 00000e2b <wait>:
-SYSCALL(wait)
      e2b:	b8 03 00 00 00       	mov    $0x3,%eax
      e30:	cd 40                	int    $0x40
      e32:	c3                   	ret    
 
 00000e33 <pipe>:
-SYSCALL(pipe)
      e33:	b8 04 00 00 00       	mov    $0x4,%eax
      e38:	cd 40                	int    $0x40
      e3a:	c3                   	ret    
 
 00000e3b <read>:
-SYSCALL(read)
      e3b:	b8 05 00 00 00       	mov    $0x5,%eax
      e40:	cd 40                	int    $0x40
      e42:	c3                   	ret    
 
 00000e43 <write>:
-SYSCALL(write)
      e43:	b8 10 00 00 00       	mov    $0x10,%eax
      e48:	cd 40                	int    $0x40
      e4a:	c3                   	ret    
 
 00000e4b <close>:
-SYSCALL(close)
      e4b:	b8 15 00 00 00       	mov    $0x15,%eax
      e50:	cd 40                	int    $0x40
      e52:	c3                   	ret    
 
 00000e53 <kill>:
-SYSCALL(kill)
      e53:	b8 06 00 00 00       	mov    $0x6,%eax
      e58:	cd 40                	int    $0x40
      e5a:	c3                   	ret    
 
 00000e5b <exec>:
-SYSCALL(exec)
      e5b:	b8 07 00 00 00       	mov    $0x7,%eax
      e60:	cd 40                	int    $0x40
      e62:	c3                   	ret    
 
 00000e63 <open>:
-SYSCALL(open)
      e63:	b8 0f 00 00 00       	mov    $0xf,%eax
      e68:	cd 40                	int    $0x40
      e6a:	c3                   	ret    
 
 00000e6b <mknod>:
-SYSCALL(mknod)
      e6b:	b8 11 00 00 00       	mov    $0x11,%eax
      e70:	cd 40                	int    $0x40
      e72:	c3                   	ret    
 
 00000e73 <unlink>:
-SYSCALL(unlink)
      e73:	b8 12 00 00 00       	mov    $0x12,%eax
      e78:	cd 40                	int    $0x40
      e7a:	c3                   	ret    
 
 00000e7b <fstat>:
-SYSCALL(fstat)
      e7b:	b8 08 00 00 00       	mov    $0x8,%eax
      e80:	cd 40                	int    $0x40
      e82:	c3                   	ret    
 
 00000e83 <link>:
-SYSCALL(link)
      e83:	b8 13 00 00 00       	mov    $0x13,%eax
      e88:	cd 40                	int    $0x40
      e8a:	c3                   	ret    
 
 00000e8b <mkdir>:
-SYSCALL(mkdir)
      e8b:	b8 14 00 00 00       	mov    $0x14,%eax
      e90:	cd 40                	int    $0x40
      e92:	c3                   	ret    
 
 00000e93 <chdir>:
-SYSCALL(chdir)
      e93:	b8 09 00 00 00       	mov    $0x9,%eax
      e98:	cd 40                	int    $0x40
      e9a:	c3                   	ret    
 
 00000e9b <dup>:
-SYSCALL(dup)
      e9b:	b8 0a 00 00 00       	mov    $0xa,%eax
      ea0:	cd 40                	int    $0x40
      ea2:	c3                   	ret    
 
 00000ea3 <getpid>:
-SYSCALL(getpid)
      ea3:	b8 0b 00 00 00       	mov    $0xb,%eax
      ea8:	cd 40                	int    $0x40
      eaa:	c3                   	ret    
 
 00000eab <sbrk>:
-SYSCALL(sbrk)
      eab:	b8 0c 00 00 00       	mov    $0xc,%eax
      eb0:	cd 40                	int    $0x40
      eb2:	c3                   	ret    
 
 00000eb3 <sleep>:
-SYSCALL(sleep)
      eb3:	b8 0d 00 00 00       	mov    $0xd,%eax
      eb8:	cd 40                	int    $0x40
      eba:	c3                   	ret    
 
 00000ebb <uptime>:
-SYSCALL(uptime)
      ebb:	b8 0e 00 00 00       	mov    $0xe,%eax
      ec0:	cd 40                	int    $0x40
      ec2:	c3                   	ret    
 
 00000ec3 <wmap>:
-SYSCALL(wmap)
      ec3:	b8 16 00 00 00       	mov    $0x16,%eax
      ec8:	cd 40                	int    $0x40
      eca:	c3                   	ret    
 
 00000ecb <wunmap>:
-SYSCALL(wunmap)
      ecb:	b8 17 00 00 00       	mov    $0x17,%eax
      ed0:	cd 40                	int    $0x40
      ed2:	c3                   	ret    
 
 00000ed3 <wremap>:
-SYSCALL(wremap)
      ed3:	b8 18 00 00 00       	mov    $0x18,%eax
      ed8:	cd 40                	int    $0x40
      eda:	c3                   	ret    
 
 00000edb <getpgdirinfo>:
-SYSCALL(getpgdirinfo)
      edb:	b8 19 00 00 00       	mov    $0x19,%eax
      ee0:	cd 40                	int    $0x40
      ee2:	c3                   	ret    
 
 00000ee3 <getwmapinfo>:
-SYSCALL(getwmapinfo)
      ee3:	b8 1a 00 00 00       	mov    $0x1a,%eax
      ee8:	cd 40                	int    $0x40
      eea:	c3                   	ret    
