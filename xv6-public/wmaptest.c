@@ -4,10 +4,15 @@
 #include "wmap.h"
 
 int main(void) {
-   	uint test = wmap(0x60000000, 8192, MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, -1);
+
+	wmap(0x60000000, 8192, MAP_SHARED | MAP_ANONYMOUS | MAP_FIXED, -1);
+	uint test = wmap(0, 4096, MAP_SHARED | MAP_ANONYMOUS, -1);
+	struct wmapinfo *wminfo = malloc(sizeof(struct wmapinfo));
+	getwmapinfo(wminfo);
+	printf(1, "total_mmaps %d\n", wminfo->total_mmaps);
 	wunmap(test);
-	wmap(0x60001000, 8192, MAP_FIXED | MAP_SHARED | MAP_ANONYMOUS, -1);
-	wunmap(0x60001000);
+	wunmap(0x60000000);
+	
 	exit();
 }
 

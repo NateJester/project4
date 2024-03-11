@@ -34,8 +34,10 @@ struct context {
 
 struct wmap_region {
   uint addr;         // Virtual address of mapping
-  uint size;         // Size of mapping
+  uint length;       // Length of mapping
+  uint size;		 // Size of mapping (# pages * 4096)
   int flags;         // Flags on mapping
+  int numPages;      // Number of pages
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };

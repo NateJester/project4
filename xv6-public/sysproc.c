@@ -106,9 +106,9 @@ sys_wmap(void)
 	if (argint(1, &length) < 0 || argint(2, &flags) < 0 || argint(3, &fd) < 0) {
 		return -1;
 	}
-
+	int numPages = (length + 4095) / 4096;
 	// check flags using bits, set to 1 if flag is set
-	int priv = 0, shared = 0, anon = 0, fixed = 0;
+	int priv = 0, shared = 0, anon = 0;
 	if ((flags & (1 << 0)) != 0) {
 		priv = 1;
 	}
@@ -118,16 +118,34 @@ sys_wmap(void)
 	if ((flags & (1 << 2)) != 0) {
 		anon = 1;
 	}
-	if ((flags & (1 << 3)) != 0) {
-		fixed = 1;
-	} else {
-	  // find address with free space
+	if ((flags & (1 << 3)) == 0) {
+	  // not fixed, find address with free space
+	  int found = 0;
+		for (uint i = 0x60000000; i < (uint)KERNBASE; i+=0x1000) {
+			uint end = i + (numPages*4096);
+			int conflict = 0;
+			for (int j = 0; j < currProc->total_wmaps; j++) {
+				if (i >= currProc->wmaps[j].addr && i < currProc->wmaps[j].addr + currProc->wmaps[j].size) { 			
+					conflict++;
+					break;
+				} else if (i < currProc->wmaps[j].addr && end > currProc->wmaps[j].addr) {
+					conflict++;
+					break;
+				} 
+			}
+			if (conflict == 0) {
+				addr = i;
+				found = 1;
+				break;
+			}
+		}
+		if (found == 0) {
+			return FAILED;
+		}
 	}
 
 	cprintf("addr 0x%x, length %d, flags %d, fd %d\n", addr, length, flags, fd);
-    cprintf("priv %d, shared %d, anon %d, fixed %d\n", priv, shared, anon, fixed);
-
-	int numPages = (length + 4095) / 4096;
+    cprintf("priv %d, shared %d, anon %d", priv, shared, anon);
 
 	if(currProc->total_wmaps >= 16) {
 		cprintf("already 16 wmaps\n");
@@ -149,11 +167,12 @@ sys_wmap(void)
 		mappages(currProc->pgdir, (void*)addr, 4096, V2P(mem), PTE_W | PTE_U);
 		addr += 4096;
 	}
-	
+
     currProc->wmaps[currProc->total_wmaps].addr = startAddr;
    	currProc->wmaps[currProc->total_wmaps].size = numPages * 4096;
-    cprintf("%d\n", currProc->wmaps[currProc->total_wmaps].addr);
-   	cprintf("%d\n", currProc->wmaps[currProc->total_wmaps].size);
+   	currProc->wmaps[currProc->total_wmaps].length = length;
+   	currProc->wmaps[currProc->total_wmaps].numPages = numPages;
+
    	currProc->total_wmaps += 1;
    	cprintf("%d\n", currProc->total_wmaps);
 	return startAddr;
@@ -175,10 +194,12 @@ sys_wunmap(void)
 	for (int i = 0; i < currProc->total_wmaps; i++) {
 		if (currProc->wmaps[i].addr == addr) {
 			match = 1;
-			numPages = currProc->wmaps[i].size / 4096;
+			numPages = currProc->wmaps[i].numPages;
 			for (int j = i; j < currProc->total_wmaps-1; j++) {
 				currProc->wmaps[j].addr = currProc->wmaps[j+1].addr;
 				currProc->wmaps[j].size = currProc->wmaps[j+1].size;
+				currProc->wmaps[j].length = currProc->wmaps[j+1].length;
+				currProc->wmaps[j].numPages = currProc->wmaps[j+1].numPages;
 			}
 			currProc->total_wmaps--;
 		}
@@ -224,7 +245,26 @@ sys_getpgdirinfo(void)
 	if (argptr(0, (void*)&pdinfo, sizeof(*pdinfo)) < 0) {
 		return FAILED;
 	}
-	return 0;
+
+	//TODO: I don't think this works correctly
+	
+	struct proc *currProc = myproc();
+	int j = 0;
+	pdinfo->n_upages = 0;	
+	// search between 0 and KERNBASE
+	for (uint i = 0; i < (uint)KERNBASE; i+=0x1000) {
+		pte_t *pte = walkpgdir(currProc->pgdir, (void*)i, 0);
+		if ((*pte & PTE_P) && (*pte & PTE_U)){
+			if (j < MAX_UPAGE_INFO) {
+				pdinfo->n_upages++;
+				pdinfo->va[j] = i;
+				pdinfo->pa[j] = PTE_ADDR(*pte);
+				j++;
+			}
+		} 
+	}
+	
+	return SUCCESS;
 }
 
 int 
@@ -239,8 +279,8 @@ sys_getwmapinfo(void)
 	wminfo->total_mmaps = currProc->total_wmaps;
 	for (int i = 0; i < currProc->total_wmaps; i++) {
 		wminfo->addr[i] = currProc->wmaps[i].addr;
-		wminfo->length[i] = currProc->wmaps[i].size;
-		wminfo->n_loaded_pages[i] = (currProc->wmaps[i].size / 4096);
+		wminfo->length[i] = currProc->wmaps[i].length;
+		wminfo->n_loaded_pages[i] = currProc->wmaps[i].numPages;
 	}
 	
 	return SUCCESS;
