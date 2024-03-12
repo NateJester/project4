@@ -182,6 +182,8 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_wmaptest\
+	_getpdi\
+	_test_12\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

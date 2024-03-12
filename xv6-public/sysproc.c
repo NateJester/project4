@@ -245,25 +245,25 @@ sys_getpgdirinfo(void)
 	if (argptr(0, (void*)&pdinfo, sizeof(*pdinfo)) < 0) {
 		return FAILED;
 	}
-
-	//TODO: I don't think this works correctly
 	
 	struct proc *currProc = myproc();
 	int j = 0;
 	pdinfo->n_upages = 0;	
 	// search between 0 and KERNBASE
-	for (uint i = 0; i < (uint)KERNBASE; i+=0x1000) {
-		pte_t *pte = walkpgdir(currProc->pgdir, (void*)i, 0);
-		if ((*pte & PTE_P) && (*pte & PTE_U)){
-			if (j < MAX_UPAGE_INFO) {
+	for (uint i = 0x0; i < (uint)KERNBASE; i+=0x1000) {
+		pde_t *pde;
+		pte_t *pte;
+		pde = &currProc->pgdir[PDX(i)];
+		if ((*pde & PTE_P) && (*pde & PTE_U)) {
+			pte = walkpgdir(currProc->pgdir, (void*)i, 0);
+			if ((*pte & PTE_P) && (*pte & PTE_U)) {
 				pdinfo->n_upages++;
 				pdinfo->va[j] = i;
-				pdinfo->pa[j] = PTE_ADDR(*pte);
+				pdinfo->pa[j] = V2P(i);
 				j++;
 			}
-		} 
+		}
 	}
-	
 	return SUCCESS;
 }
 
