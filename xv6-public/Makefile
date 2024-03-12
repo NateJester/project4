@@ -184,7 +184,10 @@ UPROGS=\
 	_wmaptest\
 	_getpdi\
 	_test_12\
-
+	_test_31\
+	_test_33\
+	_test_35\
+	
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
 

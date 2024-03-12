@@ -227,15 +227,99 @@ sys_wremap(void)
 {
 	uint oldaddr;
 	int oldsize, newsize, flags;
-
+	struct proc *currProc = myproc();
 	if (argint(0, (int*)&oldaddr) < 0) {
 		return FAILED;
 	}
 	if (argint(1, &oldsize) < 0 || argint(2, &newsize) < 0 || argint(3, &flags) < 0) {
 		return FAILED;
 	}
-	cprintf("oldaddr %d, oldsize %d, newsize %d, flags %d\n", oldaddr, oldsize, newsize, flags);
-	return 0;
+
+	if (oldaddr%4096 != 0 || newsize <= 0) {
+		cprintf("invalid argument\n");
+		return FAILED;
+	}
+	int match = -1;
+	int old_size = -1;
+	int numPages = (newsize+4095) / 4096;
+	uint end = oldaddr + (numPages * 4096);
+	for (int i =0; i < currProc->total_wmaps; i++) {
+		if (oldaddr == currProc->wmaps[i].addr) {
+			match = i;
+			old_size = currProc->wmaps[i].size;
+			if ((uint)oldsize != currProc->wmaps[i].size) {
+				return FAILED;
+			}
+			if (newsize < oldsize) {
+				currProc->wmaps[i].length = newsize;
+				currProc->wmaps[i].numPages = numPages;
+				currProc->wmaps[i].size = numPages * 4096;
+				for (uint j = end; j < (oldaddr+old_size); j+=4096) {
+					pte_t *pte = walkpgdir(currProc->pgdir, (void*)j, 0);
+					if (*pte & PTE_P) {
+						uint physical_address = PTE_ADDR(*pte);
+						kfree(P2V(physical_address));
+						*pte =0;
+					}
+				}
+				return oldaddr;
+			}
+		}
+	}
+
+	if (match == -1) return FAILED;
+	int conflict = 0;
+	for (int i = 0; i < currProc->total_wmaps; i++) {
+		if (i == match) continue;
+		if (oldaddr < currProc->wmaps[i].addr && end > currProc->wmaps[i].addr) {
+			conflict++;
+			break;
+		}
+	}
+	// grow in place
+	if (conflict == 0) {
+		currProc->wmaps[match].length = newsize;
+		currProc->wmaps[match].numPages = numPages;
+		currProc->wmaps[match].size = numPages * 4096;
+		return oldaddr;
+	} else if (flags ==0) {
+		// cannot grow in place, but not allowed to move
+		return FAILED;
+	} else {
+		// move to a new address	
+		for (uint i = 0x60000000; i < (uint)KERNBASE; i+=0x1000) {
+			end = i + (numPages*4096);			 
+			int conflict2 = 0;
+			for (int j = 0; j < currProc->total_wmaps; j++) {
+				if (i >= currProc->wmaps[j].addr && i < currProc->wmaps[j].addr + currProc->wmaps[j].size) { 			
+					conflict2++;
+					break;
+				} else if (i < currProc->wmaps[j].addr && end > currProc->wmaps[j].addr) {
+					conflict2++;
+					break;
+				} 
+			}
+			if (conflict2 == 0) {
+				// update wmap entry to new address
+				currProc->wmaps[match].addr = i;
+				currProc->wmaps[match].length = newsize;
+				currProc->wmaps[match].numPages = numPages;
+				currProc->wmaps[match].size = numPages * 4096;
+				// remove old mapping
+				for (uint j = oldaddr; j < (oldaddr+old_size); j+=4096) {
+					pte_t *pte = walkpgdir(currProc->pgdir, (void*)j, 0);
+					if (*pte & PTE_P) {
+						uint physical_address = PTE_ADDR(*pte);
+						kfree(P2V(physical_address));
+						*pte = 0;
+					}
+				}
+				return i;
+			}
+		}
+		
+	}
+	return FAILED;
 }
 
 int 
