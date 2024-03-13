@@ -239,6 +239,7 @@ sys_wremap(void)
 		cprintf("invalid argument\n");
 		return FAILED;
 	}
+	cprintf("oldaddr 0x%x newsize %d\n", oldaddr, newsize);
 	int match = -1;
 	int old_size = -1;
 	int numPages = (newsize+4095) / 4096;
@@ -278,9 +279,20 @@ sys_wremap(void)
 	}
 	// grow in place
 	if (conflict == 0) {
+		int oldPages = currProc->wmaps[match].numPages;
 		currProc->wmaps[match].length = newsize;
 		currProc->wmaps[match].numPages = numPages;
 		currProc->wmaps[match].size = numPages * 4096;
+		cprintf("numpages - oldpages %d\n", numPages - oldPages);
+		cprintf("end 0x%x\n", end);
+		/*
+		for (int i = 0; i < numPages - oldPages; i++) {
+			char *mem = kalloc();
+			mappages(currProc->pgdir, (void*)end, 4096, V2P(mem), PTE_W | PTE_U);
+			end += 4096;
+		}
+		*/
+		cprintf("here\n");
 		return oldaddr;
 	} else if (flags ==0) {
 		// cannot grow in place, but not allowed to move
@@ -301,10 +313,17 @@ sys_wremap(void)
 			}
 			if (conflict2 == 0) {
 				// update wmap entry to new address
+				cprintf("addr: 0x%x length: %d\n", i, newsize);
 				currProc->wmaps[match].addr = i;
 				currProc->wmaps[match].length = newsize;
 				currProc->wmaps[match].numPages = numPages;
 				currProc->wmaps[match].size = numPages * 4096;
+				uint newaddr = i;
+				for (int j = 0; j < numPages; j++) {
+					char *mem = kalloc();
+					mappages(currProc->pgdir, (void*)i, 4096, V2P(mem), PTE_W | PTE_U);
+					i+= 4096;
+				}
 				// remove old mapping
 				for (uint j = oldaddr; j < (oldaddr+old_size); j+=4096) {
 					pte_t *pte = walkpgdir(currProc->pgdir, (void*)j, 0);
@@ -314,7 +333,7 @@ sys_wremap(void)
 						*pte = 0;
 					}
 				}
-				return i;
+				return newaddr;
 			}
 		}
 		
